@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta
+        name="theme-color"
+        content="#02080b"
+    >
+
+    <meta
+        name="description"
+        content="Jarvis Mobile Edition - Personal AI Assistant"
+    >
+
+    <title>Jarvis Mobile Edition</title>
+
+    <!-- Phase 1 CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+<!-- =====================================================
+     APP ROOT
+     ===================================================== -->
+
+<div id="app">
+
+
+    <!-- =================================================
+         SIDE DRAWER
+         ================================================= -->
+
+    <aside
+        id="sideDrawer"
+        class="side-drawer"
+        aria-hidden="true"
+    >
+
+        <div class="drawer-header">
+
+            <div class="drawer-logo">
+                JARVIS
+            </div>
+
+            <button
+                id="closeDrawer"
+                class="icon-button"
+                type="button"
+                aria-label="Close menu"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="drawer-status">
+
+            <span class="status-dot"></span>
+
+            <span>
+                SYSTEM ONLINE
+            </span>
+
+        </div>
+
+
+        <nav class="drawer-menu">
+
+            <button
+                id="newSessionButton"
+                class="drawer-item"
+                type="button"
+            >
+
+                <span class="drawer-icon">＋</span>
+
+                <span>
+                    New Session
+                </span>
+
+            </button>
+
+
+            <button
+                id="searchButton"
+                class="drawer-item"
+                type="button"
+            >
+
+                <span class="drawer-icon">⌕</span>
+
+                <span>
+                    Search
+                </span>
+
+            </button>
+
+
+            <button
+                id="archiveButton"
+                class="drawer-item"
+                type="button"
+            >
+
+                <span class="drawer-icon">▣</span>
+
+                <span>
+                    Archive
+                </span>
+
+            </button>
+
+
+            <button
+                id="settingsButton"
+                class="drawer-item"
+                type="button"
+            >
+
+                <span class="drawer-icon">⚙</span>
+
+                <span>
+                    Settings
+                </span>
+
+            </button>
+
+        </nav>
+
+
+        <div class="drawer-divider"></div>
+
+
+        <div class="drawer-section-title">
+            RECENT SESSIONS
+        </div>
+
+
+        <div
+            id="sessionList"
+            class="session-list"
+        >
+
+            <!-- Sessions will be added by script.js -->
+
+            <div class="empty-sessions">
+                No sessions yet.
+            </div>
+
+        </div>
+
+
+        <div class="drawer-footer">
+
+            <div>
+                JARVIS MOBILE EDITION
+            </div>
+
+            <div>
+                SECURE AI CORE
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =================================================
+         DRAWER OVERLAY
+         ================================================= -->
+
+    <div
+        id="drawerOverlay"
+        class="drawer-overlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =================================================
+         MAIN APP
+         ================================================= -->
+
+    <main class="main-app">
+
+
+        <!-- =============================================
+             TOP BAR
+             ============================================= -->
+
+        <header class="top-bar">
+
+
+            <button
+                id="menuButton"
+                class="icon-button menu-button"
+                type="button"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
+
+            <div class="brand">
+
+                <div class="brand-name">
+                    JARVIS
+                </div>
+
+                <div class="brand-subtitle">
+                    MOBILE EDITION
+                </div>
+
+            </div>
+
+
+            <div
+                id="connectionIndicator"
+                class="connection-indicator"
+                title="System status"
+            >
+
+                <span class="status-dot"></span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =============================================
+             SYSTEM STATE
+             ============================================= -->
+
+        <section class="system-state">
+
+
+            <div
+                id="systemState"
+                class="system-state-label"
+            >
+                IDLE
+            </div>
+
+
+            <div
+                id="systemStateDetail"
+                class="system-state-detail"
+            >
+                SYSTEM READY
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             CENTRAL AI CORE
+             ============================================= -->
+
+        <section class="core-section">
+
+
+            <div
+                id="aiCore"
+                class="ai-core"
+                data-state="idle"
+            >
+
+                <!--
+                    Phase 2:
+                    SVG / animation will be connected here.
+                -->
+
+                <div class="core-ring core-ring-outer"></div>
+
+                <div class="core-ring core-ring-middle"></div>
+
+                <div class="core-ring core-ring-inner"></div>
+
+                <div class="core-center">
+
+                    <div class="core-center-dot"></div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="coreStatus"
+                class="core-status"
+            >
+                CORE ACTIVE
+            </div>
+
+
+            <div
+                id="audioStatus"
+                class="audio-status"
+            >
+                AUDIO SYSTEM READY
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             CHAT AREA
+             ============================================= -->
+
+        <section
+            id="chatSection"
+            class="chat-section"
+        >
+
+
+            <div class="chat-header">
+
+                <div class="section-label">
+                    CONVERSATION
+                </div>
+
+                <div
+                    id="sessionTitle"
+                    class="session-title"
+                >
+                    New Session
+                </div>
+
+            </div>
+
+
+            <div
+                id="chatMessages"
+                class="chat-messages"
+            >
+
+
+                <!-- =====================================
+                     INITIAL JARVIS MESSAGE
+                     ===================================== -->
+
+                <article class="message message-jarvis">
+
+                    <div class="message-label">
+                        JARVIS
+                    </div>
+
+                    <div class="message-bubble">
+
+                        <p>
+                            Systems online.
+                        </p>
+
+                        <p>
+                            Awaiting your command, Vishnu.
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <!--
+                    Future user/Jarvis messages
+                    will be inserted here.
+                -->
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             AUDIO SYNTHESIS PANEL
+             ============================================= -->
+
+        <section
+            id="audioPanel"
+            class="audio-panel"
+        >
+
+            <div class="audio-panel-indicator">
+
+                <span class="audio-wave wave-1"></span>
+                <span class="audio-wave wave-2"></span>
+                <span class="audio-wave wave-3"></span>
+                <span class="audio-wave wave-4"></span>
+                <span class="audio-wave wave-5"></span>
+
+            </div>
+
+
+            <div class="audio-panel-text">
+
+                <div class="audio-title">
+                    AUDIO SYNTHESIS
+                </div>
+
+                <div
+                    id="audioPanelStatus"
+                    class="audio-panel-status"
+                >
+                    READY
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             INPUT AREA
+             ============================================= -->
+
+        <section class="input-section">
+
+
+            <div class="input-container">
+
+
+                <!-- Attachment -->
+
+                <button
+                    id="attachmentButton"
+                    class="input-icon-button"
+                    type="button"
+                    aria-label="Attach file"
+                >
+                    📎
+                </button>
+
+
+                <!-- Hidden file input -->
+
+                <input
+                    id="fileInput"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <!-- Prompt -->
+
+                <textarea
+                    id="prompt"
+                    class="prompt-input"
+                    rows="1"
+                    placeholder="Ask Jarvis..."
+                    autocomplete="off"
+                    spellcheck="true"
+                ></textarea>
+
+
+                <!-- Microphone -->
+
+                <button
+                    id="micButton"
+                    class="input-icon-button"
+                    type="button"
+                    aria-label="Voice input"
+                >
+                    🎙️
+                </button>
+
+
+                <!-- Send -->
+
+                <button
+                    id="sendButton"
+                    class="send-button"
+                    type="button"
+                    aria-label="Send message"
+                >
+                    ➤
+                </button>
+
+            </div>
+
+
+            <!-- Attachment preview -->
+
+            <div
+                id="attachmentPreview"
+                class="attachment-preview"
+                hidden
+            >
+
+                <div
+                    id="attachmentName"
+                    class="attachment-name"
+                >
+                </div>
+
+                <button
+                    id="removeAttachment"
+                    class="remove-attachment"
+                    type="button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="input-hint">
+                ENTER TO SEND • SHIFT + ENTER FOR NEW LINE
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             SYSTEM FOOTER
+             ============================================= -->
+
+        <footer class="system-footer">
+
+            <span>
+                JARVIS ONLINE
+            </span>
+
+            <span class="footer-separator">
+                •
+            </span>
+
+            <span>
+                SECURE AI CORE
+            </span>
+
+        </footer>
+
+
+    </main>
+
+
+</div>
+
+
+<!-- =====================================================
+     PHASE 1 JAVASCRIPT
+     ===================================================== -->
+
+<script src="script.js"></script>
+
+</body>
+
+              </html>
