@@ -1,558 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    >
+    <meta name="theme-color" content="#050914">
+    <meta name="description" content="JARVIS — Personal AI Assistant">
 
-    <meta
-        name="theme-color"
-        content="#02080b"
-    >
+    <title>JARVIS | Mobile Edition Next</title>
 
-    <meta
-        name="description"
-        content="Jarvis Mobile Edition - Personal AI Assistant"
-    >
-
-    <title>Jarvis Mobile Edition</title>
-
-    <!-- Phase 1 CSS -->
+    <!-- External CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 
-
 <body>
 
-<!-- =====================================================
-     APP ROOT
-     ===================================================== -->
+    <!-- APP -->
+    <div class="app-container">
 
-<div id="app">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
 
-
-    <!-- =================================================
-         SIDE DRAWER
-         ================================================= -->
-
-    <aside
-        id="sideDrawer"
-        class="side-drawer"
-        aria-hidden="true"
-    >
-
-        <div class="drawer-header">
-
-            <div class="drawer-logo">
-                JARVIS
+            <div class="sidebar-header">
+                <h2>J.A.R.V.I.S</h2>
+                <button id="closeSidebar" aria-label="Close menu">
+                    ✕
+                </button>
             </div>
 
-            <button
-                id="closeDrawer"
-                class="icon-button"
-                type="button"
-                aria-label="Close menu"
-            >
-                ×
+            <button id="newChatButton" class="new-chat-button">
+                ＋ New Conversation
             </button>
 
-        </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-page="assistant">
+                    ◈ Assistant
+                </button>
 
+                <button class="nav-item" data-page="memory">
+                    ◉ Memory
+                </button>
 
-        <div class="drawer-status">
+                <button class="nav-item" data-page="history">
+                    ▤ Conversation History
+                </button>
 
-            <span class="status-dot"></span>
+                <button class="nav-item" data-page="settings">
+                    ⚙ Settings
+                </button>
+            </nav>
 
-            <span>
-                SYSTEM ONLINE
-            </span>
-
-        </div>
-
-
-        <nav class="drawer-menu">
-
-            <button
-                id="newSessionButton"
-                class="drawer-item"
-                type="button"
-            >
-
-                <span class="drawer-icon">＋</span>
-
-                <span>
-                    New Session
-                </span>
-
-            </button>
-
-
-            <button
-                id="searchButton"
-                class="drawer-item"
-                type="button"
-            >
-
-                <span class="drawer-icon">⌕</span>
-
-                <span>
-                    Search
-                </span>
-
-            </button>
-
-
-            <button
-                id="archiveButton"
-                class="drawer-item"
-                type="button"
-            >
-
-                <span class="drawer-icon">▣</span>
-
-                <span>
-                    Archive
-                </span>
-
-            </button>
-
-
-            <button
-                id="settingsButton"
-                class="drawer-item"
-                type="button"
-            >
-
-                <span class="drawer-icon">⚙</span>
-
-                <span>
-                    Settings
-                </span>
-
-            </button>
-
-        </nav>
-
-
-        <div class="drawer-divider"></div>
-
-
-        <div class="drawer-section-title">
-            RECENT SESSIONS
-        </div>
-
-
-        <div
-            id="sessionList"
-            class="session-list"
-        >
-
-            <!-- Sessions will be added by script.js -->
-
-            <div class="empty-sessions">
-                No sessions yet.
-            </div>
-
-        </div>
-
-
-        <div class="drawer-footer">
-
-            <div>
-                JARVIS MOBILE EDITION
-            </div>
-
-            <div>
-                SECURE AI CORE
-            </div>
-
-        </div>
-
-    </aside>
-
-
-    <!-- =================================================
-         DRAWER OVERLAY
-         ================================================= -->
-
-    <div
-        id="drawerOverlay"
-        class="drawer-overlay"
-        aria-hidden="true"
-    ></div>
-
-
-    <!-- =================================================
-         MAIN APP
-         ================================================= -->
-
-    <main class="main-app">
-
-
-        <!-- =============================================
-             TOP BAR
-             ============================================= -->
-
-        <header class="top-bar">
-
-
-            <button
-                id="menuButton"
-                class="icon-button menu-button"
-                type="button"
-                aria-label="Open menu"
-            >
-                ☰
-            </button>
-
-
-            <div class="brand">
-
-                <div class="brand-name">
-                    JARVIS
-                </div>
-
-                <div class="brand-subtitle">
-                    MOBILE EDITION
-                </div>
-
-            </div>
-
-
-            <div
-                id="connectionIndicator"
-                class="connection-indicator"
-                title="System status"
-            >
-
+            <div class="sidebar-footer">
                 <span class="status-dot"></span>
-
+                <span>PERSONAL AI SYSTEM</span>
             </div>
 
-        </header>
+        </aside>
 
+        <!-- MAIN -->
+        <main class="main-content">
 
-        <!-- =============================================
-             SYSTEM STATE
-             ============================================= -->
+            <!-- TOP BAR -->
+            <header class="topbar">
 
-        <section class="system-state">
+                <button id="menuButton" aria-label="Open menu">
+                    ☰
+                </button>
 
-
-            <div
-                id="systemState"
-                class="system-state-label"
-            >
-                IDLE
-            </div>
-
-
-            <div
-                id="systemStateDetail"
-                class="system-state-detail"
-            >
-                SYSTEM READY
-            </div>
-
-        </section>
-
-
-        <!-- =============================================
-             CENTRAL AI CORE
-             ============================================= -->
-
-        <section class="core-section">
-
-
-            <div
-                id="aiCore"
-                class="ai-core"
-                data-state="idle"
-            >
-
-                <!--
-                    Phase 2:
-                    SVG / animation will be connected here.
-                -->
-
-                <div class="core-ring core-ring-outer"></div>
-
-                <div class="core-ring core-ring-middle"></div>
-
-                <div class="core-ring core-ring-inner"></div>
-
-                <div class="core-center">
-
-                    <div class="core-center-dot"></div>
-
+                <div class="brand">
+                    <h1>JARVIS</h1>
+                    <p>MOBILE EDITION · NEXT</p>
                 </div>
 
-            </div>
-
-
-            <div
-                id="coreStatus"
-                class="core-status"
-            >
-                CORE ACTIVE
-            </div>
-
-
-            <div
-                id="audioStatus"
-                class="audio-status"
-            >
-                AUDIO SYSTEM READY
-            </div>
-
-        </section>
-
-
-        <!-- =============================================
-             CHAT AREA
-             ============================================= -->
-
-        <section
-            id="chatSection"
-            class="chat-section"
-        >
-
-
-            <div class="chat-header">
-
-                <div class="section-label">
-                    CONVERSATION
+                <div class="connection-status">
+                    <span class="status-dot"></span>
+                    <span id="connectionStatus">READY</span>
                 </div>
 
-                <div
-                    id="sessionTitle"
-                    class="session-title"
-                >
-                    New Session
-                </div>
+            </header>
 
-            </div>
+            <!-- ASSISTANT PAGE -->
+            <section id="assistantPage" class="page active">
 
+                <!-- AI CORE -->
+                <section class="core-section">
 
-            <div
-                id="chatMessages"
-                class="chat-messages"
-            >
+                    <div class="core" id="jarvisCore">
 
+                        <div class="core-ring ring-one"></div>
+                        <div class="core-ring ring-two"></div>
+                        <div class="core-ring ring-three"></div>
 
-                <!-- =====================================
-                     INITIAL JARVIS MESSAGE
-                     ===================================== -->
+                        <div class="core-orbit orbit-one"></div>
+                        <div class="core-orbit orbit-two"></div>
 
-                <article class="message message-jarvis">
-
-                    <div class="message-label">
-                        JARVIS
-                    </div>
-
-                    <div class="message-bubble">
-
-                        <p>
-                            Systems online.
-                        </p>
-
-                        <p>
-                            Awaiting your command, Vishnu.
-                        </p>
+                        <div class="core-center">
+                            <span>J</span>
+                        </div>
 
                     </div>
 
-                </article>
+                    <h2 id="coreStatus">SYSTEM STANDBY</h2>
 
+                    <p id="coreSubtitle">
+                        Awaiting your command, Boss.
+                    </p>
 
-                <!--
-                    Future user/Jarvis messages
-                    will be inserted here.
-                -->
+                </section>
 
+                <!-- SYSTEM STATUS -->
+                <section class="system-panel">
 
-            </div>
+                    <div class="panel-heading">
+                        <h3>SYSTEM STATUS</h3>
+                        <span class="live-label">● LIVE</span>
+                    </div>
 
-        </section>
+                    <div class="status-grid">
 
+                        <div class="status-card">
+                            <span>AI ENGINE</span>
+                            <strong id="aiStatus">STANDBY</strong>
+                        </div>
 
-        <!-- =============================================
-             AUDIO SYNTHESIS PANEL
-             ============================================= -->
+                        <div class="status-card">
+                            <span>NETWORK</span>
+                            <strong id="networkStatus">CHECKING</strong>
+                        </div>
 
-        <section
-            id="audioPanel"
-            class="audio-panel"
-        >
+                        <div class="status-card">
+                            <span>VOICE</span>
+                            <strong id="voiceStatus">READY</strong>
+                        </div>
 
-            <div class="audio-panel-indicator">
+                        <div class="status-card">
+                            <span>MEMORY</span>
+                            <strong id="memoryStatus">LOCAL</strong>
+                        </div>
 
-                <span class="audio-wave wave-1"></span>
-                <span class="audio-wave wave-2"></span>
-                <span class="audio-wave wave-3"></span>
-                <span class="audio-wave wave-4"></span>
-                <span class="audio-wave wave-5"></span>
+                    </div>
 
-            </div>
+                </section>
 
+                <!-- CHAT -->
+                <section class="chat-section">
 
-            <div class="audio-panel-text">
+                    <div class="chat-heading">
+                        <div>
+                            <h3>CONVERSATION</h3>
+                            <p>Talk to your personal AI</p>
+                        </div>
 
-                <div class="audio-title">
-                    AUDIO SYNTHESIS
+                        <button id="clearChatButton">
+                            CLEAR CHAT
+                        </button>
+                    </div>
+
+                    <div
+                        id="chatMessages"
+                        class="chat-messages"
+                        aria-live="polite"
+                    >
+
+                        <div class="message assistant-message">
+                            <div class="message-label">JARVIS</div>
+                            <div class="message-text">
+                                Systems initialized. How may I assist you, Boss?
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- INPUT -->
+                    <form id="chatForm" class="chat-input-area">
+
+                        <textarea
+                            id="messageInput"
+                            rows="1"
+                            placeholder="Ask JARVIS anything..."
+                            aria-label="Message for Jarvis"
+                        ></textarea>
+
+                        <div class="input-actions">
+
+                            <div class="input-tools">
+
+                                <button
+                                    type="button"
+                                    id="imageButton"
+                                    aria-label="Attach image"
+                                    title="Attach image"
+                                >
+                                    ▧
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="micButton"
+                                    aria-label="Voice input"
+                                    title="Voice input"
+                                >
+                                    🎙
+                                </button>
+
+                            </div>
+
+                            <button
+                                type="submit"
+                                id="sendButton"
+                            >
+                                SEND ↗
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                    <input
+                        type="file"
+                        id="imageInput"
+                        accept="image/*"
+                        hidden
+                    >
+
+                    <p class="privacy-note">
+                        JARVIS may make mistakes. Verify important information.
+                    </p>
+
+                </section>
+
+            </section>
+
+            <!-- MEMORY PAGE -->
+            <section id="memoryPage" class="page">
+
+                <div class="page-heading">
+                    <h2>Memory Center</h2>
+                    <p>Manage locally saved assistant memory.</p>
                 </div>
 
-                <div
-                    id="audioPanelStatus"
-                    class="audio-panel-status"
-                >
-                    READY
+                <div id="memoryList" class="content-panel">
+                    No saved memories to display yet.
                 </div>
 
-            </div>
+            </section>
 
-        </section>
+            <!-- HISTORY PAGE -->
+            <section id="historyPage" class="page">
 
-
-        <!-- =============================================
-             INPUT AREA
-             ============================================= -->
-
-        <section class="input-section">
-
-
-            <div class="input-container">
-
-
-                <!-- Attachment -->
-
-                <button
-                    id="attachmentButton"
-                    class="input-icon-button"
-                    type="button"
-                    aria-label="Attach file"
-                >
-                    📎
-                </button>
-
-
-                <!-- Hidden file input -->
-
-                <input
-                    id="fileInput"
-                    type="file"
-                    accept="image/*"
-                    hidden
-                >
-
-
-                <!-- Prompt -->
-
-                <textarea
-                    id="prompt"
-                    class="prompt-input"
-                    rows="1"
-                    placeholder="Ask Jarvis..."
-                    autocomplete="off"
-                    spellcheck="true"
-                ></textarea>
-
-
-                <!-- Microphone -->
-
-                <button
-                    id="micButton"
-                    class="input-icon-button"
-                    type="button"
-                    aria-label="Voice input"
-                >
-                    🎙️
-                </button>
-
-
-                <!-- Send -->
-
-                <button
-                    id="sendButton"
-                    class="send-button"
-                    type="button"
-                    aria-label="Send message"
-                >
-                    ➤
-                </button>
-
-            </div>
-
-
-            <!-- Attachment preview -->
-
-            <div
-                id="attachmentPreview"
-                class="attachment-preview"
-                hidden
-            >
-
-                <div
-                    id="attachmentName"
-                    class="attachment-name"
-                >
+                <div class="page-heading">
+                    <h2>Conversation History</h2>
+                    <p>Access your saved sessions.</p>
                 </div>
 
-                <button
-                    id="removeAttachment"
-                    class="remove-attachment"
-                    type="button"
-                >
-                    ×
-                </button>
+                <div id="historyList" class="content-panel">
+                    No saved conversations yet.
+                </div>
 
-            </div>
+            </section>
 
+            <!-- SETTINGS PAGE -->
+            <section id="settingsPage" class="page">
 
-            <div class="input-hint">
-                ENTER TO SEND • SHIFT + ENTER FOR NEW LINE
-            </div>
+                <div class="page-heading">
+                    <h2>Settings</h2>
+                    <p>Configure your assistant experience.</p>
+                </div>
 
-        </section>
+                <div class="content-panel">
+                    <p>Settings controls will be implemented in a later step.</p>
+                </div>
 
+            </section>
 
-        <!-- =============================================
-             SYSTEM FOOTER
-             ============================================= -->
+            <!-- FOOTER -->
+            <footer class="app-footer">
+                <span>J.A.R.V.I.S · NEXT</span>
+                <span>PERSONAL AI INTERFACE</span>
+            </footer>
 
-        <footer class="system-footer">
+        </main>
 
-            <span>
-                JARVIS ONLINE
-            </span>
+    </div>
 
-            <span class="footer-separator">
-                •
-            </span>
+    <!-- BACKDROP -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
 
-            <span>
-                SECURE AI CORE
-            </span>
-
-        </footer>
-
-
-    </main>
-
-
-</div>
-
-
-<!-- =====================================================
-     PHASE 1 JAVASCRIPT
-     ===================================================== -->
-
-<script src="script.js"></script>
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
 
 </body>
-
-              </html>
+</html>
