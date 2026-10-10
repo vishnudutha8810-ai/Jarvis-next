@@ -6,7 +6,7 @@
 
 // Paste your deployed Google Apps Script Web App URL here.
 // Keep the URL private; do not share it publicly.
-const API_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbwZAyeCF7MrPuWdscHDc8yEeROIBNxMDh5fihMhPOJXBZn71DbKD4PsvErIxyZ_VhBa/exec";
 
 const STORAGE_KEYS = {
   sessions: "jarvis_next_sessions_v1",
