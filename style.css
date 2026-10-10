@@ -1,0 +1,563 @@
+/* ============================================
+   JARVIS NEXT — FRONTEND CONTROLLER
+   ============================================ */
+
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+
+/* Elements */
+
+const sidebar = $("sidebar");
+const menuButton = $("menuButton");
+const closeSidebar = $("closeSidebar");
+const backdrop = $("sidebarBackdrop");
+
+const chatForm = $("chatForm");
+const messageInput = $("messageInput");
+const chatMessages = $("chatMessages");
+const sendButton = $("sendButton");
+
+const newChatButton = $("newChatButton");
+const clearChatButton = $("clearChatButton");
+
+const imageButton = $("imageButton");
+const imageInput = $("imageInput");
+const micButton = $("micButton");
+
+const connectionStatus = $("connectionStatus");
+const coreStatus = $("coreStatus");
+const coreSubtitle = $("coreSubtitle");
+const aiStatus = $("aiStatus");
+const voiceStatus = $("voiceStatus");
+const memoryStatus = $("memoryStatus");
+
+/*
+ * The backend URL will be configured when the
+ * secure Gemini backend is ready.
+ * Never put a Gemini API key in this file.
+ */
+const API_URL = "";
+
+/* Local storage */
+
+const MEMORY_KEY = "jarvis_next_memory_v1";
+const HISTORY_KEY = "jarvis_next_history_v1";
+
+let memory = loadJSON(MEMORY_KEY, []);
+let sessions = loadJSON(HISTORY_KEY, []);
+let currentSession = createSession();
+let busy = false;
+let selectedImage = null;
+
+/* Helpers */
+
+function loadJSON(key, fallback) {
+    try {
+        const value = JSON.parse(localStorage.getItem(key));
+        return value ?? fallback;
+    } catch (error) {
+        console.warn("Could not load local data:", error);
+        return fallback;
+    }
+}
+
+function saveJSON(key, value) {
+    try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+    } catch (error) {
+        console.error("Could not save local data:", error);
+        return false;
+    }
+}
+
+function setStatus(text, state = "") {
+    if (coreStatus) coreStatus.textContent = text;
+    if (aiStatus) aiStatus.textContent = text;
+
+    if (connectionStatus) {
+        connectionStatus.textContent =
+            state === "online" ? "CONNECTED" :
+            state === "error" ? "ERROR" : "LOCAL MODE";
+    }
+}
+
+function createSession() {
+    return {
+        id: Date.now().toString(),
+        title: "New conversation",
+        messages: [],
+        updatedAt: Date.now()
+    };
+}
+
+/* Sidebar */
+
+function openSidebar() {
+    sidebar?.classList.add("open");
+    backdrop?.classList.add("visible");
+}
+
+function hideSidebar() {
+    sidebar?.classList.remove("open");
+    backdrop?.classList.remove("visible");
+}
+
+menuButton?.addEventListener("click", openSidebar);
+closeSidebar?.addEventListener("click", hideSidebar);
+backdrop?.addEventListener("click", hideSidebar);
+
+/* Page navigation */
+
+const pages = {
+    assistant: $("assistantPage"),
+    memory: $("memoryPage"),
+    history: $("historyPage"),
+    settings: $("settingsPage")
+};
+
+document.querySelectorAll(".nav-item").forEach((button) => {
+    button.addEventListener("click", () => {
+        const target = button.dataset.page;
+
+        Object.entries(pages).forEach(([name, page]) => {
+            page?.classList.toggle("active", name === target);
+        });
+
+        document.querySelectorAll(".nav-item").forEach((item) => {
+            item.classList.toggle("active", item === button);
+        });
+
+        hideSidebar();
+
+        if (target === "memory") renderMemory();
+        if (target === "history") renderHistory();
+    });
+});
+
+/* Chat rendering */
+
+function addMessage(role, text, options = {}) {
+    if (!chatMessages) return null;
+
+    const message = document.createElement("div");
+    message.className =
+        "message " +
+        (role === "user" ? "user-message" : "assistant-message");
+
+    const label = document.createElement("div");
+    label.className = "message-label";
+    label.textContent = role === "user" ? "BOSS" : "JARVIS";
+
+    const content = document.createElement("div");
+    content.className = "message-text";
+    content.textContent = text;
+
+    message.append(label, content);
+    chatMessages.appendChild(message);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    if (!options.temporary) {
+        currentSession.messages.push({
+            role,
+            text,
+            time: Date.now()
+        });
+
+        currentSession.updatedAt = Date.now();
+
+        if (currentSession.messages.length === 1) {
+            currentSession.title = text.slice(0, 45);
+        }
+
+        saveSession();
+    }
+
+    return content;
+}
+
+function saveSession() {
+    const existingIndex = sessions.findIndex(
+        (session) => session.id === currentSession.id
+    );
+
+    if (existingIndex >= 0) {
+        sessions[existingIndex] = currentSession;
+    } else {
+        sessions.unshift(currentSession);
+    }
+
+    sessions = sessions.slice(0, 50);
+
+    saveJSON(HISTORY_KEY, sessions);
+}
+
+function renderSession(session) {
+    currentSession = session;
+    chatMessages.replaceChildren();
+
+    session.messages.forEach((message) => {
+        addMessage(message.role, message.text, {
+            temporary: true
+        });
+    });
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function startNewChat() {
+    if (currentSession.messages.length) {
+        saveSession();
+    }
+
+    currentSession = createSession();
+    chatMessages.replaceChildren();
+
+    addMessage(
+        "assistant",
+        "New session ready, Boss. How may I help?"
+    );
+}
+
+newChatButton?.addEventListener("click", () => {
+    startNewChat();
+    hideSidebar();
+});
+
+clearChatButton?.addEventListener("click", () => {
+    if (!confirm("Clear this conversation?")) return;
+
+    currentSession.messages = [];
+    chatMessages.replaceChildren();
+    saveSession();
+
+    addMessage("assistant", "Conversation cleared, Boss.");
+});
+
+/* Memory */
+
+function saveMemoryEntry(role, text) {
+    memory.push({
+        role,
+        text,
+        time: Date.now()
+    });
+
+    memory = memory.slice(-100);
+
+    saveJSON(MEMORY_KEY, memory);
+
+    if (memoryStatus) {
+        memoryStatus.textContent = "SAVED LOCALLY";
+    }
+}
+
+function renderMemory() {
+    const container = $("memoryList");
+    if (!container) return;
+
+    container.replaceChildren();
+
+    if (!memory.length) {
+        container.textContent = "No saved memory yet.";
+        return;
+    }
+
+    memory.slice().reverse().forEach((entry) => {
+        const item = document.createElement("div");
+        item.className = "memory-entry";
+
+        const title = document.createElement("strong");
+        title.textContent =
+            entry.role === "user" ? "BOSS" : "JARVIS";
+
+        const text = document.createElement("p");
+        text.textContent = entry.text;
+
+        item.append(title, text);
+        container.appendChild(item);
+    });
+}
+
+function renderHistory() {
+    const container = $("historyList");
+    if (!container) return;
+
+    container.replaceChildren();
+
+    if (!sessions.length) {
+        container.textContent = "No saved conversations yet.";
+        return;
+    }
+
+    sessions.forEach((session) => {
+        const button = document.createElement("button");
+        button.className = "history-entry";
+        button.textContent =
+            session.title || "Conversation";
+
+        button.addEventListener("click", () => {
+            renderSession(session);
+
+            Object.values(pages).forEach((page) => {
+                page?.classList.remove("active");
+            });
+
+            pages.assistant?.classList.add("active");
+            hideSidebar();
+        });
+
+        container.appendChild(button);
+    });
+}
+
+/* Send a message */
+
+async function sendMessage(text) {
+    const prompt = text.trim();
+
+    if (!prompt || busy) return;
+
+    addMessage("user", prompt);
+    saveMemoryEntry("user", prompt);
+
+    messageInput.value = "";
+    busy = true;
+
+    sendButton.disabled = true;
+    sendButton.textContent = "THINKING...";
+    setStatus("THINKING");
+    coreSubtitle.textContent = "Processing your request, Boss.";
+
+    const responseBox = addMessage(
+        "assistant",
+        "Preparing response...",
+        { temporary: true }
+    );
+
+    try {
+        if (!API_URL) {
+            throw new Error(
+                "AI backend is not connected yet. The interface is ready; backend setup is the next step."
+            );
+        }
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                prompt,
+                memory: memory.slice(-20),
+                image: selectedImage
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Request failed.");
+        }
+
+        if (typeof data.reply !== "string" || !data.reply.trim()) {
+            throw new Error("The server returned no text reply.");
+        }
+
+        responseBox.textContent = data.reply;
+
+        currentSession.messages.push({
+            role: "assistant",
+            text: data.reply,
+            time: Date.now()
+        });
+
+        currentSession.updatedAt = Date.now();
+        saveSession();
+        saveMemoryEntry("assistant", data.reply);
+
+        setStatus("ONLINE", "online");
+        coreSubtitle.textContent = "Ready for your next command, Boss.";
+
+        speak(data.reply);
+    } catch (error) {
+        responseBox.textContent = "JARVIS: " + error.message;
+        setStatus("STANDBY", "error");
+        coreSubtitle.textContent = "Backend connection required.";
+        console.error("Jarvis request:", error);
+    } finally {
+        busy = false;
+        sendButton.disabled = false;
+        sendButton.textContent = "SEND ↗";
+    }
+}
+
+chatForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    sendMessage(messageInput.value);
+});
+
+messageInput?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        chatForm.requestSubmit();
+    }
+});
+
+/* Voice output */
+
+let voices = [];
+
+function loadVoices() {
+    if (!("speechSynthesis" in window)) {
+        if (voiceStatus) voiceStatus.textContent = "UNAVAILABLE";
+        return;
+    }
+
+    voices = speechSynthesis.getVoices();
+
+    if (voiceStatus) {
+        voiceStatus.textContent = "READY";
+    }
+}
+
+function speak(text) {
+    if (!("speechSynthesis" in window)) return;
+
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.pitch = 0.92;
+
+    const preferred = voices.find((voice) =>
+        /Google UK English Male|Daniel|George|Guy/i.test(voice.name)
+    );
+
+    if (preferred) utterance.voice = preferred;
+
+    speechSynthesis.speak(utterance);
+}
+
+loadVoices();
+
+if ("speechSynthesis" in window) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+/* Voice input */
+
+const Recognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+let recognition = null;
+
+if (Recognition) {
+    recognition = new Recognition();
+    recognition.lang = "en-IN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+        if (voiceStatus) voiceStatus.textContent = "LISTENING";
+        if (micButton) micButton.textContent = "■";
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        messageInput.value = transcript;
+        sendMessage(transcript);
+    };
+
+    recognition.onerror = (event) => {
+        console.warn("Voice input error:", event.error);
+        if (voiceStatus) voiceStatus.textContent = "VOICE ERROR";
+    };
+
+    recognition.onend = () => {
+        if (voiceStatus) voiceStatus.textContent = "READY";
+        if (micButton) micButton.textContent = "🎙";
+    };
+}
+
+micButton?.addEventListener("click", () => {
+    if (!recognition) {
+        alert("Voice recognition is not supported by this browser.");
+        return;
+    }
+
+    try {
+        recognition.start();
+    } catch (error) {
+        console.warn("Could not start microphone:", error);
+    }
+});
+
+/* Image selection */
+
+imageButton?.addEventListener("click", () => {
+    imageInput?.click();
+});
+
+imageInput?.addEventListener("change", async () => {
+    const file = imageInput.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+        alert("Please select an image file.");
+        imageInput.value = "";
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert("Please select an image smaller than 5 MB.");
+        imageInput.value = "";
+        return;
+    }
+
+    try {
+        const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error("Could not read image."));
+            reader.readAsDataURL(file);
+        });
+
+        selectedImage = {
+            name: file.name,
+            mimeType: file.type,
+            data: String(dataUrl).split(",")[1]
+        };
+
+        coreSubtitle.textContent =
+            "Image selected. Send a message to analyze it once vision is connected.";
+
+        addMessage(
+            "assistant",
+            "Image selected: " + file.name +
+            ". Actual image analysis requires backend vision support."
+        );
+    } catch (error) {
+        alert(error.message);
+    }
+
+    imageInput.value = "";
+});
+
+/* Initial state */
+
+if (memoryStatus) {
+    memoryStatus.textContent =
+        memory.length ? "SAVED LOCALLY" : "LOCAL";
+}
+
+if (connectionStatus) {
+    connectionStatus.textContent = "LOCAL MODE";
+}
+
+setStatus("STANDBY");
+
+console.log("JARVIS-next frontend initialized.");
